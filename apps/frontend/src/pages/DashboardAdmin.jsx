@@ -63,8 +63,6 @@ export default function DashboardAdmin() {
 		phone: '',
 		course_id: '',
 		roll_number: '',
-		grade: '',
-		section: '',
 		admission_date: '',
 		status: 'active'
 	});
@@ -287,6 +285,38 @@ export default function DashboardAdmin() {
 	}
 
 	// Student management functions
+	async function handleAddStudent() {
+		try {
+			const res = await apiRequest('/api/students/add', {
+				method: 'POST',
+				body: JSON.stringify(studentForm)
+			});
+			
+			if (res.error) {
+				throw new Error(res.error);
+			}
+			
+			// Refresh students list
+			await loadStudents();
+			alert('Student added successfully');
+			
+			// Close modal and reset form
+			setShowAddStudent(false);
+			setStudentForm({
+				name: '',
+				email: '',
+				phone: '',
+				course_id: '',
+				roll_number: '',
+				admission_date: '',
+				status: 'active'
+			});
+		} catch (err) {
+			console.error('Error adding student:', err);
+			alert('Failed to add student: ' + err.message);
+		}
+	}
+
 	async function handleDeleteStudent(studentId) {
 		try {
 			const res = await apiRequest('/api/students/delete', {
@@ -314,6 +344,16 @@ export default function DashboardAdmin() {
 		} catch (err) {
 			console.error('Error loading students:', err);
 			setStudents([]);
+		}
+	}
+
+	async function loadCourses() {
+		try {
+			const res = await apiRequest('/api/courses');
+			setCourses(res.courses || []);
+		} catch (err) {
+			console.error('Error loading courses:', err);
+			setCourses([]);
 		}
 	}
 
@@ -487,6 +527,7 @@ export default function DashboardAdmin() {
 					const donationsData = donationsRes.status === 'fulfilled' ? donationsRes.value : { donations: [] };
 					const patientsData = patientsRes.status === 'fulfilled' ? patientsRes.value : { patients: [] };
 					const labsData = labsRes.status === 'fulfilled' ? labsRes.value : { labs: [] };
+					const students = (usersData.users || []).filter(user => user.role === 'student');
 					const donors = (usersData.users || []).filter(user => user.role === 'donor');
 					
 					// IMPORTANT: Set users state so pending registrations can be displayed
@@ -505,8 +546,8 @@ export default function DashboardAdmin() {
 						totalDoctors: doctorsData.doctors?.length || 0,
 						totalPatients: patientsData.patients?.length || 0,
 						totalLabs: labsData.labs?.length || 0,
-						totalStudents: studentsData.students?.length || 0,
-						totalDonors: donorsData.donors?.length || 0
+						totalStudents: students?.length || 0,
+						totalDonors: donors?.length || 0
 					}));
 				}
 			} else if (activeTab === 'patients') {
@@ -625,6 +666,7 @@ export default function DashboardAdmin() {
 			} else if (activeTab === 'students') {
 				// Load students using API endpoint
 				await loadStudents();
+				await loadCourses();
 			} else if (activeTab === 'pharmacy') {
 				// Use optimized API endpoint with shorter timeout and cache
 				try {
@@ -3845,8 +3887,6 @@ export default function DashboardAdmin() {
 											phone: '', 
 											course_id: '', 
 											roll_number: '', 
-											grade: '', 
-											section: '', 
 											admission_date: '', 
 											status: 'active' 
 										});
@@ -3871,13 +3911,12 @@ export default function DashboardAdmin() {
 								<div className="overflow-x-auto">
 									<table className="min-w-full divide-y divide-gray-200">
 										<thead className="bg-gray-50">
-											<tr>
+											<tr className="border-b border-gray-200">
 												<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
 												<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
 												<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
 												<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Course</th>
 												<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Roll Number</th>
-												<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Grade</th>
 												<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
 												<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
 											</tr>
@@ -3890,7 +3929,6 @@ export default function DashboardAdmin() {
 													<td className="px-6 py-4 whitespace-nowrap text-sm">{student.phone || '-'}</td>
 													<td className="px-6 py-4 whitespace-nowrap text-sm">{student.course_title || '-'}</td>
 													<td className="px-6 py-4 whitespace-nowrap text-sm">{student.roll_number || '-'}</td>
-													<td className="px-6 py-4 whitespace-nowrap text-sm">{student.grade || '-'}</td>
 													<td className="px-6 py-4 whitespace-nowrap text-sm">
 														<span className={`px-2 py-1 text-xs rounded ${
 															student.status === 'active' 
@@ -6239,26 +6277,6 @@ export default function DashboardAdmin() {
 									/>
 								</div>
 								<div>
-									<label className="block text-sm font-medium mb-1">Grade</label>
-									<input
-										className="w-full border p-2 rounded"
-										value={studentForm.grade}
-										onChange={(e) => setStudentForm({ ...studentForm, grade: e.target.value })}
-										placeholder="e.g. A"
-									/>
-								</div>
-							</div>
-							<div className="grid grid-cols-2 gap-3">
-								<div>
-									<label className="block text-sm font-medium mb-1">Section</label>
-									<input
-										className="w-full border p-2 rounded"
-										value={studentForm.section}
-										onChange={(e) => setStudentForm({ ...studentForm, section: e.target.value })}
-										placeholder="e.g. B"
-									/>
-								</div>
-								<div>
 									<label className="block text-sm font-medium mb-1">Status</label>
 									<select
 										className="w-full border p-2 rounded"
@@ -6282,20 +6300,8 @@ export default function DashboardAdmin() {
 						</div>
 						<div className="flex gap-2 mt-4">
 							<button
-								onClick={() => {
-									setShowAddStudent(false);
-									setEditingStudent(null);
-									setStudentForm({
-										name: '',
-										email: '',
-										phone: '',
-										course_id: '',
-										roll_number: '',
-										grade: '',
-										section: '',
-										admission_date: '',
-										status: 'active'
-									});
+								onClick={async () => {
+									await handleAddStudent();
 								}}
 								className="flex-1 bg-brand text-white px-4 py-2 rounded hover:bg-brand-dark"
 							>

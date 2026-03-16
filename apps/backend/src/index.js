@@ -35,6 +35,7 @@ import surgeryCategoriesRoutes from './routes/surgeryCategories.js';
 import surgeryBookingsRoutes from './routes/surgeryBookings.js';
 import jobsRoutes from './routes/jobs.js';
 import homeServicesRoutes from './routes/homeServices.js';
+import studentsRoutes from './routes/students.js';
 
 const app = express();
 // Railway handles PORT automatically - no custom handling needed
@@ -204,6 +205,19 @@ async function buildAdminStats() {
 			console.warn('⚠️ Failed to count donors:', err);
 		}
 
+		// Get students count separately (filter from users)
+		let studentsCount = 0;
+		try {
+			const { data: studentUsers } = await supabaseAdmin
+				.from('users')
+				.select('id')
+				.eq('role', 'student')
+				.limit(10000);
+			studentsCount = studentUsers?.length || 0;
+		} catch (err) {
+			console.warn('⚠️ Failed to count students:', err);
+		}
+
 		const statsTime = Date.now() - statsStartTime;
 		console.log(`⚡ Admin stats loaded in ${statsTime}ms (optimized)`);
 
@@ -214,7 +228,8 @@ async function buildAdminStats() {
 			totalDoctors: doctorsCount,
 			totalPatients: patientsCount,
 			totalLabs: labsCount,
-			totalDonors: donorsCount
+			totalDonors: donorsCount,
+			totalStudents: studentsCount
 		};
 	} catch (err) {
 		console.error('❌ Error in buildAdminStats:', err);
@@ -226,7 +241,8 @@ async function buildAdminStats() {
 			totalDoctors: 0,
 			totalPatients: 0,
 			totalLabs: 0,
-			totalDonors: 0
+			totalDonors: 0,
+			totalStudents: 0
 		};
 	}
 }
@@ -1099,6 +1115,8 @@ app.use('/api/appointments', authMiddleware, rbac(['patient','doctor','admin']),
 app.use('/api/notifications', authMiddleware, rbac(['patient','donor','admin','lab','student','teacher','pharmacy','doctor']), notificationRoutes);
 // Teacher routes
 app.use('/api/teacher', authMiddleware, rbac(['teacher','admin']), teacherRoutes);
+// Student routes - admin only
+app.use('/api/students', authMiddleware, rbac(['admin']), studentsRoutes);
 // Admin-only routes for managing specialties, conditions, and surgery categories (must be after public routes)
 app.use('/api/admin/specialties', authMiddleware, rbac(['admin']), specialtiesRoutes);
 app.use('/api/admin/conditions', authMiddleware, rbac(['admin']), conditionsRoutes);

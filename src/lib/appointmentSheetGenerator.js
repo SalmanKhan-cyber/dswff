@@ -4,6 +4,8 @@
  */
 
 import PDFDocument from 'pdfkit';
+import fs from 'fs';
+import path from 'path';
 
 export function generateAppointmentSheetPDF(appointmentData) {
   return new Promise((resolve, reject) => {
@@ -32,11 +34,26 @@ export function generateAppointmentSheetPDF(appointmentData) {
         doc.text(text, x, y, options);
       };
 
-      // Header
-      doc.fillColor('#1e40af').fontSize(24).font('Helvetica-Bold').text('APPOINTMENT SHEET', 50, 50, { align: 'center' });
-      
-      // Subtitle
-      doc.fillColor('#64748b').fontSize(14).font('Helvetica').text('Dr. Sanaullah Welfare Foundation', 50, 80, { align: 'center' });
+      // Header with Logo
+      try {
+        // Try to load logo from public directory
+        const logoPath = path.join(process.cwd(), 'public', 'last-logo.png');
+        if (fs.existsSync(logoPath)) {
+          // Add logo on the left
+          doc.image(logoPath, 50, 40, { width: 50, height: 50 });
+          // Add title next to logo
+          doc.fillColor('#1e40af').fontSize(20).font('Helvetica-Bold').text('APPOINTMENT SHEET', 110, 50);
+          doc.fillColor('#64748b').fontSize(12).font('Helvetica').text('Dr. Sanaullah Welfare Foundation', 110, 75);
+        } else {
+          // Fallback without logo
+          doc.fillColor('#1e40af').fontSize(24).font('Helvetica-Bold').text('APPOINTMENT SHEET', 50, 50, { align: 'center' });
+          doc.fillColor('#64748b').fontSize(14).font('Helvetica').text('Dr. Sanaullah Welfare Foundation', 50, 80, { align: 'center' });
+        }
+      } catch (error) {
+        // Fallback without logo if image loading fails
+        doc.fillColor('#1e40af').fontSize(24).font('Helvetica-Bold').text('APPOINTMENT SHEET', 50, 50, { align: 'center' });
+        doc.fillColor('#64748b').fontSize(14).font('Helvetica').text('Dr. Sanaullah Welfare Foundation', 50, 80, { align: 'center' });
+      }
       
       // Date generated
       doc.fillColor('#64748b').fontSize(10).font('Helvetica').text(`Generated: ${new Date().toLocaleDateString()}`, 50, 100, { align: 'center' });

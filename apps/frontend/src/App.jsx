@@ -314,6 +314,7 @@ export default function App() {
 					</div>
 					<div className="border-t border-gray-200 pt-4 md:pt-6 text-center">
 						<p className="text-xs text-gray-500">© {new Date().getFullYear()} Dr. Sanaullah Welfare Foundation. All rights reserved.</p>
+						<p className="text-xs text-gray-400 mt-1">Developed by Salman Khan</p>
 					</div>
 				</div>
 			</footer>
