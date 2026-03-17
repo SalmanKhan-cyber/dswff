@@ -1,0 +1,12 @@
+{
+  "name": "dswff",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "cd apps/frontend && npm run build",
+    "dev": "cd apps/frontend && npm run dev"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
