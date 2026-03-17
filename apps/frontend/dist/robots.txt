@@ -1,0 +1,34 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://dswff.org/sitemap.xml
+
+# Allow search engines to crawl all important pages
+Allow: /about
+Allow: /contact
+Allow: /donation
+Allow: /doctors
+Allow: /pharmacy
+Allow: /lab-tests
+Allow: /consult-online
+Allow: /in-clinic
+Allow: /courses
+Allow: /jobs
+Allow: /home-services
+
+# Disallow dashboard and internal pages
+Disallow: /dashboard/
+Disallow: /pending-approval
+Disallow: /video-call/
+Disallow: /blood-request
+
+# Allow image files for logo visibility
+Allow: *.png
+Allow: *.jpg
+Allow: *.jpeg
+Allow: *.svg
+Allow: *.ico
+
+# Crawl delay (optional, be nice to servers)
+Crawl-delay: 1
