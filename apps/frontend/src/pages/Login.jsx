@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { supabase } from '../lib/supabase.js';
+import { signInWithPassword, refreshSession, getUser, signOut } from '../lib/auth-api.js';
 import { apiRequest } from '../lib/api';
 
 export default function Login() {
@@ -71,7 +72,7 @@ export default function Login() {
 				return;
 			}
 
-			const { data, error } = await supabase.auth.signInWithPassword({ 
+			const { data, error } = await signInWithPassword({ 
 				email: email.trim(), 
 				password 
 			});
@@ -86,10 +87,10 @@ export default function Login() {
 		}
 		
 		// Refresh session to get latest user data
-		await supabase.auth.refreshSession();
+		await refreshSession();
 		
 		// Get fresh user data
-		const { data: { user: freshUser } } = await supabase.auth.getUser();
+		const { data: { user: freshUser } } = await getUser();
 		
 		// Get user role from metadata and database; prefer database if present
 		const roleFromMetadata = freshUser?.user_metadata?.role || data.user?.user_metadata?.role;
@@ -242,7 +243,7 @@ export default function Login() {
 		const normalizedRole = (role || '').replace(/-/g, '_').toLowerCase();
 		if (rolesRequiringApproval.includes(normalizedRole) && verified === false) {
 			try {
-				await supabase.auth.signOut();
+				await signOut();
 			} catch (_e) {
 				// ignore
 			}
@@ -302,7 +303,7 @@ export default function Login() {
 			// If someone is currently logged in (commonly as patient), keep them from
 			// staying logged in while creating a new student account.
 			try {
-				await supabase.auth.signOut();
+				await signOut();
 			} catch (_e) {
 				// ignore
 			}
@@ -628,7 +629,7 @@ export default function Login() {
 				// CRITICAL: Sign out user immediately after registration to prevent automatic login
 				// Users should log in manually after admin approval
 				try {
-					await supabase.auth.signOut();
+					await signOut();
 					console.log('✅ User signed out after registration (frontend security measure)');
 				} catch (signOutErr) {
 					console.warn('⚠️ Could not sign out user after registration:', signOutErr);
