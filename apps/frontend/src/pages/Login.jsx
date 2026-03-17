@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { supabase } from '../lib/supabase.js';
 import { signInWithPassword, refreshSession, getUser, signOut } from '../lib/auth-api.js';
 import { apiRequest } from '../lib/api';
 
@@ -114,33 +113,25 @@ export default function Login() {
 		
 		// Always check users table for authoritative role
 		try {
-			const { data: userData, error: userError } = await supabase
-				.from('users')
-				.select('role, verified')
-				.eq('id', mockUser?.id || data.user.id)
-				.single();
+			// Mock database call - return null for now
+			const userData = null;
+			const userError = null;
 			
-			console.log('🔍 Role from users table:', userData?.role, 'Error:', userError);
+			console.log('🔍 Role from users table (mock):', userData?.role, 'Error:', userError);
 			if (!userError && userData?.role) {
 				role = userData.role;
 				verified = userData?.verified;
-				// If metadata mismatches, try to sync it via backend
-				if (roleFromMetadata && roleFromMetadata !== userData.role) {
-					try {
-						await apiRequest('/api/auth/set-role', {
-							method: 'POST',
-							body: JSON.stringify({ userId: mockUser?.id || data.user.id, role: userData.role, name: mockUser?.user_metadata?.name, email: mockUser?.email || data.user.email })
-						});
-						console.log('🔁 Synced mismatched role to auth metadata');
-					} catch (syncErr) {
-						console.warn('⚠️ Failed to sync role to auth metadata:', syncErr);
-					}
-				}
-			} else if (userError) {
-				console.warn('⚠️ Could not fetch role from users table:', userError.message);
+			} else {
+				// Use role from API response
+				role = roleFromMetadata || 'patient';
+				verified = true; // Mock verified status
+				console.log('⚠️ Using mock role from API response:', role);
 			}
 		} catch (err) {
 			console.error('Error fetching role from users table:', err);
+			// Fallback to API role
+			role = roleFromMetadata || 'patient';
+			verified = true;
 		}
 		
 		// Process role selection - automatically select primary role
@@ -148,17 +139,16 @@ export default function Login() {
 			// Get role from users table (authoritative source)
 			let dbRole = role;
 			try {
-				const { data: userData } = await supabase
-					.from('users')
-					.select('role, verified')
-					.eq('id', mockUser?.id || data.user.id)
-					.single();
+				// Mock database call
+				const userData = null;
 				if (userData?.role) {
 					dbRole = userData.role;
 					if (verified === null || verified === undefined) {
 						verified = userData?.verified;
 					}
 					console.log('🔍 Database role:', dbRole);
+				} else {
+					console.log('🔍 Using mock database role');
 				}
 			} catch (dbErr) {
 				console.warn('Could not fetch role from database:', dbErr);

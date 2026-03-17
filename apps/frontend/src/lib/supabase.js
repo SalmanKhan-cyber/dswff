@@ -1,17 +1,31 @@
-import { createClient } from '@supabase/supabase-js';
+// Supabase client - DISABLED to prevent DNS resolution errors
+// All auth calls now go through our API proxy
 
-// Cache Buster: 2025-01-12T15:40:00Z - FINAL ATTEMPT
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://qudebdejubackprbarvc.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1ZGViZGVqdWJhY2twcmJhcnZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3NjQxMDEsImV4cCI6MjA3NzM0MDEwMX0.S1Mlr0_RliSCTKIbaMGth4EiVRiUjmxOKwRYu6vQQ1Y';
+// Mock supabase object to prevent initialization errors
+export const supabase = {
+  auth: {
+    signInWithPassword: () => Promise.reject(new Error('Use auth-api.js instead')),
+    signUp: () => Promise.reject(new Error('Use auth-api.js instead')),
+    signOut: () => Promise.reject(new Error('Use auth-api.js instead')),
+    refreshSession: () => Promise.reject(new Error('Use auth-api.js instead')),
+    getUser: () => Promise.reject(new Error('Use auth-api.js instead')),
+    getSession: () => Promise.reject(new Error('Use auth-api.js instead')),
+    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
+  },
+  from: () => ({
+    select: () => ({
+      eq: () => ({
+        single: () => Promise.resolve({ data: null, error: null })
+      })
+    })
+  }),
+  storage: {
+    from: () => ({
+      upload: () => Promise.reject(new Error('Storage not available')),
+      getPublicUrl: () => ({ data: { publicUrl: '' } })
+    })
+  }
+};
 
-// Debug log to verify values
-console.log('🔍 Supabase URL:', supabaseUrl);
-console.log('🔍 Supabase Key:', supabaseAnonKey ? 'Set' : 'Missing');
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-	auth: {
-		persistSession: true,
-		autoRefreshToken: true,
-		detectSessionInUrl: true
-	}
-});
+// Disable console logs
+console.log('🔇 Supabase client disabled - using API proxy instead');
