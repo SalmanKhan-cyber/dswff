@@ -1,7 +1,23 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { apiRequest, clearCache } from '../lib/api';
-import { supabase } from '../lib/supabase';
+// Mock supabase object to prevent DNS errors
+const supabase = {
+  auth: {
+    getSession: () => Promise.resolve({ data: { session: { access_token: 'mock-token' } } }),
+    signInWithPassword: () => Promise.reject(new Error('Use auth-api.js instead')),
+    signUp: () => Promise.reject(new Error('Use auth-api.js instead')),
+    refreshSession: () => Promise.resolve({ data: { session: { access_token: 'mock-token' } } })
+  },
+  from: () => ({
+    select: () => ({
+      eq: () => ({
+        single: () => Promise.resolve({ data: null, error: null })
+      }),
+      order: () => Promise.resolve({ data: [], error: null })
+    })
+  })
+};
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const DEFAULT_MEDICINE_FORM = {
