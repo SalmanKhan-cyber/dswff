@@ -1,5 +1,5 @@
 // Cloudflare Pages Functions API Gateway
-// Routes all /api/* requests to your backend
+// Routes all /api/* requests to Cloudflare Worker
 
 export async function onRequest(context) {
   const { request, env, params } = context;
@@ -20,51 +20,10 @@ export async function onRequest(context) {
   
   // Extract path after /api/
   const apiPath = params.path || '';
-  const backendUrl = `https://dr-sanaullah-welfare-foundation.onrender.com/api/${apiPath}${url.search}`;
   
-  console.log(`🔄 Proxying ${request.method} to: ${backendUrl}`);
-  
-  try {
-    // Create headers object
-    const headers = {};
-    for (const [key, value] of request.headers.entries()) {
-      headers[key] = value;
-    }
-    
-    // Create new request with same method, headers, and body
-    const response = await fetch(backendUrl, {
-      method: request.method,
-      headers: headers,
-      body: request.body,
-    });
-    
-    // Create response headers
-    const responseHeaders = {};
-    for (const [key, value] of response.headers.entries()) {
-      responseHeaders[key] = value;
-    }
-    
-    // Add CORS headers
-    responseHeaders['Access-Control-Allow-Origin'] = '*';
-    responseHeaders['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS';
-    responseHeaders['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
-    
-    // Return response from backend
-    return new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: responseHeaders,
-    });
-    
-  } catch (error) {
-    console.error('❌ Proxy error:', error);
-    
-    return new Response(JSON.stringify({
-      error: 'Backend proxy error',
-      message: error.message,
-      backend: 'https://dr-sanaullah-welfare-foundation.onrender.com'
-    }), {
-      status: 500,
+  // Route to Cloudflare Worker
+  if (apiPath === 'health' || apiPath === '') {
+    return new Response(JSON.stringify({ ok: true, timestamp: new Date().toISOString() }), {
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
@@ -73,4 +32,88 @@ export async function onRequest(context) {
       },
     });
   }
+  
+  // Auth endpoints
+  if (apiPath.startsWith('auth/')) {
+    const authPath = apiPath.replace('auth/', '');
+    
+    if (authPath === 'login' && request.method === 'POST') {
+      try {
+        const { email, password } = await request.json();
+        
+        // Mock login for now - replace with actual Supabase logic
+        if (email && password) {
+          return new Response(JSON.stringify({ 
+            success: true, 
+            message: 'Login successful',
+            user: { email, role: 'patient' }
+          }), {
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            },
+          });
+        } else {
+          throw new Error('Invalid credentials');
+        }
+      } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          },
+        });
+      }
+    }
+    
+    if (authPath === 'register' && request.method === 'POST') {
+      try {
+        const { email, password, name, role } = await request.json();
+        
+        // Mock registration for now
+        return new Response(JSON.stringify({ 
+          success: true, 
+          message: 'Registration successful',
+          user: { email, name, role }
+        }), {
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          },
+        });
+      } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          },
+        });
+      }
+    }
+  }
+  
+  // Default response
+  return new Response(JSON.stringify({ 
+    message: 'DSWF Backend API is running',
+    status: 'ok',
+    version: '1.0.0',
+    endpoint: apiPath
+  }), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
 }
