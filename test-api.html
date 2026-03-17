@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Test Page</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testAPI() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h2>Testing API...</h2>';
+            
+            try {
+                // Test health endpoint
+                console.log('Testing health endpoint...');
+                const healthResponse = await fetch('/api/health');
+                const healthData = await healthResponse.json();
+                results.innerHTML += `<p>✅ Health: ${JSON.stringify(healthData)}</p>`;
+                
+                // Test login endpoint
+                console.log('Testing login endpoint...');
+                const loginResponse = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: 'test@example.com', password: 'password123' })
+                });
+                const loginData = await loginResponse.json();
+                results.innerHTML += `<p>✅ Login: ${JSON.stringify(loginData)}</p>`;
+                
+            } catch (error) {
+                console.error('API Test Error:', error);
+                results.innerHTML += `<p>❌ Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Run test on page load
+        testAPI();
+    </script>
+</body>
+</html>
