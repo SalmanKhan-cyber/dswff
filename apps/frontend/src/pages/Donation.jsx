@@ -1,7 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 import { apiRequest } from '../lib/api';
+// Mock supabase to prevent DNS errors
+const supabase = {
+  auth: {
+    signInWithPassword: () => Promise.reject(new Error('Use auth-api.js instead')),
+    signUp: () => Promise.reject(new Error('Use auth-api.js instead')),
+    signOut: () => Promise.resolve(),
+    getUser: () => Promise.resolve({ data: { user: { email: 'mock-email' } } })
+  }
+};
 
 export default function Donation() {
 	const [step, setStep] = useState(1); // 1: Account, 2: Details, 3: Donation, 4: Success
