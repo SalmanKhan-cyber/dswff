@@ -45,7 +45,7 @@ cd ../frontend && npm install
 ```
 
 ### 3) Database schema & storage
-Run the SQL in `supabase/schema.sql` using the Supabase SQL editor or CLI. Create storage buckets listed in `supabase/storage.txt`.
+Run the SQL in `supabase/` directory using Supabase SQL editor or CLI. Create storage buckets as needed.
 
 ### 4) Run locally
 - Backend: `cd apps/backend && npm run dev`
