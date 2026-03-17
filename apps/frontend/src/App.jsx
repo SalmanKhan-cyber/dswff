@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, NavLink, Route, Routes } from 'react-router-dom';
-import { supabase } from './lib/supabase';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Donation from './pages/Donation';
