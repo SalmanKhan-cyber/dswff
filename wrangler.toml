@@ -2,6 +2,8 @@ name = "dswff"
 compatibility_date = "2024-03-17"
 compatibility_flags = ["nodejs_compat"]
 
+pages_build_output_dir = "apps/frontend/dist"
+
 [build]
 command = "cd apps/frontend && npm run build"
 cwd = "."
