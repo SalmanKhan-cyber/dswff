@@ -20,6 +20,7 @@ export async function onRequest(context) {
     });
   }
 
+  // Auth endpoints
   if (path.startsWith('auth/')) {
     const authPath = path.replace('auth/', '');
     
@@ -47,6 +48,41 @@ export async function onRequest(context) {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
+  }
+
+  // Public endpoints
+  if (path === 'doctors/public') {
+    return new Response(JSON.stringify({
+      doctors: [
+        { id: '1', name: 'Dr. Test Doctor', specialization: 'General Practice' },
+        { id: '2', name: 'Dr. Sample Doctor', specialization: 'Cardiology' }
+      ]
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+
+  if (path === 'conditions/public') {
+    return new Response(JSON.stringify({
+      conditions: [
+        { id: '1', name: 'Hypertension', description: 'High blood pressure' },
+        { id: '2', name: 'Diabetes', description: 'Blood sugar disorder' }
+      ]
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+
+  if (path === 'specialties/public') {
+    return new Response(JSON.stringify({
+      specialties: [
+        { id: '1', name: 'General Practice' },
+        { id: '2', name: 'Cardiology' },
+        { id: '3', name: 'Neurology' }
+      ]
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
   }
 
   return new Response(JSON.stringify({

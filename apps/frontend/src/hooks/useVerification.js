@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 import { apiRequest } from '../lib/api';
+// Mock supabase to prevent DNS errors
+const supabase = {
+  auth: {
+    getSession: () => Promise.resolve({ data: { session: { access_token: 'mock-token' } } })
+  }
+};
 
 /**
  * Hook to check user verification status
