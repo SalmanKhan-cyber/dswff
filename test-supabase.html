@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Supabase Connection Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        const supabaseUrl = 'https://qudebdejubackprbarvc.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1ZGViZGVqdWJhY2twcmJhcnZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3NjQxMDEsImV4cCI6MjA3NzM0MDEwMX0.S1Mlr0_RliSCTKIbaMGth4EiVRiUjmxOKwRYu6vQQ1Y';
+        
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+        const results = document.getElementById('results');
+        
+        async function testSupabase() {
+            results.innerHTML = '<h2>Testing Supabase...</h2>';
+            
+            try {
+                // Test connection
+                console.log('Testing Supabase connection...');
+                const { data, error } = await supabase.from('_test_connection').select('*').limit(1);
+                
+                if (error) {
+                    console.log('Supabase Error:', error);
+                    results.innerHTML += `<p>❌ Supabase Error: ${error.message}</p>`;
+                    
+                    // Try auth instead
+                    console.log('Testing Supabase auth...');
+                    const { data: authData, error: authError } = await supabase.auth.getSession();
+                    
+                    if (authError) {
+                        results.innerHTML += `<p>❌ Auth Error: ${authError.message}</p>`;
+                    } else {
+                        results.innerHTML += `<p>✅ Auth working: ${JSON.stringify(authData)}</p>`;
+                    }
+                } else {
+                    results.innerHTML += `<p>✅ Supabase connected: ${JSON.stringify(data)}</p>`;
+                }
+                
+                // Test login
+                console.log('Testing login...');
+                const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+                    email: 'test@example.com',
+                    password: 'wrongpassword'
+                });
+                
+                if (loginError) {
+                    results.innerHTML += `<p>✅ Login error (expected): ${loginError.message}</p>`;
+                } else {
+                    results.innerHTML += `<p>✅ Login worked: ${JSON.stringify(loginData)}</p>`;
+                }
+                
+            } catch (error) {
+                console.error('Supabase Test Error:', error);
+                results.innerHTML += `<p>❌ Connection Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Run test
+        testSupabase();
+    </script>
+</body>
+</html>
