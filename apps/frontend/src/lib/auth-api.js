@@ -1,5 +1,4 @@
 // Auth API wrapper - calls our Cloudflare Functions instead of Supabase directly
-import { supabase } from './supabase.js';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -8,7 +7,6 @@ export async function signInWithPassword(credentials) {
   try {
     console.log('🔐 Using API proxy for login...');
     
-    // First try our API proxy
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: {
@@ -25,7 +23,7 @@ export async function signInWithPassword(credentials) {
 
     console.log('✅ API proxy login successful:', data);
 
-    // For now, return mock data that matches Supabase format
+    // Return data that matches Supabase format
     return {
       data: {
         user: {
@@ -48,10 +46,8 @@ export async function signInWithPassword(credentials) {
     };
 
   } catch (error) {
-    console.error('❌ API proxy login failed, falling back to Supabase:', error);
-    
-    // Fallback to direct Supabase call
-    return await supabase.auth.signInWithPassword(credentials);
+    console.error('❌ API proxy login failed:', error);
+    throw error;
   }
 }
 
@@ -91,24 +87,31 @@ export async function signUp(credentials) {
     };
 
   } catch (error) {
-    console.error('❌ API proxy registration failed, falling back to Supabase:', error);
-    
-    // Fallback to direct Supabase call
-    return await supabase.auth.signUp(credentials);
+    console.error('❌ API proxy registration failed:', error);
+    throw error;
   }
 }
 
-// Refresh session (still use Supabase for this)
+// Mock refresh session - no actual Supabase calls
 export async function refreshSession() {
-  return await supabase.auth.refreshSession();
+  console.log('🔄 Mock refresh session (no Supabase)');
+  return {
+    data: { session: null },
+    error: null
+  };
 }
 
-// Get user (still use Supabase for this)
+// Mock get user - return mock data
 export async function getUser() {
-  return await supabase.auth.getUser();
+  console.log('👤 Mock get user (no Supabase)');
+  return {
+    data: { user: null },
+    error: null
+  };
 }
 
-// Sign out (still use Supabase for this)
+// Mock sign out - no actual Supabase calls
 export async function signOut() {
-  return await supabase.auth.signOut();
+  console.log('🚪 Mock sign out (no Supabase)');
+  return { error: null };
 }

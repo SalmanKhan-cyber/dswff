@@ -92,8 +92,12 @@ export default function Login() {
 		// Get fresh user data
 		const { data: { user: freshUser } } = await getUser();
 		
+		// Use the user data from our API response
+		const apiUser = data.user;
+		const mockUser = freshUser || apiUser;
+		
 		// Get user role from metadata and database; prefer database if present
-		const roleFromMetadata = freshUser?.user_metadata?.role || data.user?.user_metadata?.role;
+		const roleFromMetadata = mockUser?.user_metadata?.role || data.user?.user_metadata?.role;
 		let role = roleFromMetadata;
 		let verified = null;
 		console.log('🔍 Role from user_metadata:', roleFromMetadata);
@@ -113,7 +117,7 @@ export default function Login() {
 			const { data: userData, error: userError } = await supabase
 				.from('users')
 				.select('role, verified')
-				.eq('id', freshUser?.id || data.user.id)
+				.eq('id', mockUser?.id || data.user.id)
 				.single();
 			
 			console.log('🔍 Role from users table:', userData?.role, 'Error:', userError);
@@ -125,7 +129,7 @@ export default function Login() {
 					try {
 						await apiRequest('/api/auth/set-role', {
 							method: 'POST',
-							body: JSON.stringify({ userId: freshUser?.id || data.user.id, role: userData.role, name: freshUser?.user_metadata?.name, email: freshUser?.email || data.user.email })
+							body: JSON.stringify({ userId: mockUser?.id || data.user.id, role: userData.role, name: mockUser?.user_metadata?.name, email: mockUser?.email || data.user.email })
 						});
 						console.log('🔁 Synced mismatched role to auth metadata');
 					} catch (syncErr) {
@@ -147,7 +151,7 @@ export default function Login() {
 				const { data: userData } = await supabase
 					.from('users')
 					.select('role, verified')
-					.eq('id', freshUser?.id || data.user.id)
+					.eq('id', mockUser?.id || data.user.id)
 					.single();
 				if (userData?.role) {
 					dbRole = userData.role;
@@ -198,9 +202,9 @@ export default function Login() {
 						await apiRequest('/api/auth/set-role', {
 							method: 'POST',
 							body: JSON.stringify({ 
-								userId: freshUser?.id || data.user.id, 
+								userId: mockUser?.id || data.user.id, 
 								role: role,
-								email: freshUser?.email || data.user.email
+								email: mockUser?.email || data.user.email
 							})
 						});
 						console.log('✅ Role updated in database');
