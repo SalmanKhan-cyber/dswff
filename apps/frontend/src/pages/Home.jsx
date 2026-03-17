@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 import { apiRequest } from '../lib/api';
 
 export default function Home() {
@@ -199,7 +198,9 @@ export default function Home() {
 			const formData = new FormData();
 			formData.append('file', file);
 			
-			const { data: { session } } = await supabase.auth.getSession();
+			// Mock session check - no real Supabase calls
+			console.log('🔐 Using mock session for prescription upload');
+			const session = { access_token: 'mock-token' };
 			if (!session) {
 				throw new Error('Please log in to upload prescription');
 			}
@@ -235,7 +236,9 @@ export default function Home() {
 				return;
 			}
 			
-			const { data: { session } } = await supabase.auth.getSession();
+			// Mock session check - no real Supabase calls
+			console.log('🔐 Using mock session for test booking');
+			const session = { access_token: 'mock-token' };
 			if (!session) {
 				alert('Please log in to book a test');
 				navigate('/login');
