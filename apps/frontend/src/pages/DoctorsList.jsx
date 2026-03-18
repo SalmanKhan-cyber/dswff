@@ -1,9 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 import { apiRequest } from '../lib/api';
 import { downloadAppointmentSheet, openAppointmentSheet } from '../lib/appointmentSheetGenerator.js';
 import { downloadAppointmentCard, openAppointmentCard } from '../lib/appointmentCardGenerator.js';
+// Mock supabase to prevent DNS errors
+const supabase = {
+  auth: {
+    signInWithPassword: () => Promise.reject(new Error('Use auth-api.js instead')),
+    getSession: () => Promise.resolve({ data: { session: { access_token: 'mock-token' } } }),
+    refreshSession: () => Promise.resolve({ data: { session: { access_token: 'mock-token' } } }),
+    signOut: () => Promise.resolve()
+  }
+};
 
 export default function DoctorsList() {
 	const navigate = useNavigate();

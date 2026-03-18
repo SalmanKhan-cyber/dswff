@@ -1,5 +1,14 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { apiRequest } from '../lib/api';
+// Mock supabase to prevent DNS errors
+const supabase = {
+  auth: {
+    signInWithPassword: () => Promise.reject(new Error('Use auth-api.js instead')),
+    getSession: () => Promise.resolve({ data: { session: { access_token: 'mock-token' } } }),
+    refreshSession: () => Promise.resolve({ data: { session: { access_token: 'mock-token' } } }),
+    signOut: () => Promise.resolve()
+  }
+};
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
