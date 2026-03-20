@@ -86,6 +86,43 @@ export async function onRequest(context) {
   }
 
   // Students endpoint
+  if (path === 'students/add' && request.method === 'POST') {
+    try {
+      const body = await request.json();
+      return new Response(JSON.stringify({
+        success: true,
+        student: {
+          id: 'student-' + Date.now(),
+          ...body,
+          admission_date: new Date().toISOString().split('T')[0], // Add admission_date
+          created_at: new Date().toISOString()
+        }
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: 'Invalid student data' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+
+  if (path === 'students/delete' && request.method === 'DELETE') {
+    try {
+      const body = await request.json();
+      return new Response(JSON.stringify({
+        success: true,
+        message: `Student ${body.id} deleted successfully`
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: 'Invalid delete request' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+
   if (path === 'students' && request.method === 'POST') {
     try {
       const body = await request.json();
