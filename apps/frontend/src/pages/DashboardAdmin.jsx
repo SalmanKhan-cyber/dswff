@@ -80,6 +80,7 @@ export default function DashboardAdmin() {
 		course_id: '',
 		roll_number: '',
 		admission_date: '',
+		password: '',
 		status: 'active'
 	});
 	const [stats, setStats] = useState({ totalUsers: 0, totalDonations: 0, totalAmount: 0, totalDoctors: 0, totalPatients: 0, totalLabs: 0, totalDonors: 0, totalStudents: 0 });
@@ -325,6 +326,7 @@ export default function DashboardAdmin() {
 				course_id: '',
 				roll_number: '',
 				admission_date: '',
+				password: '',
 				status: 'active'
 			});
 		} catch (err) {
@@ -3901,10 +3903,11 @@ export default function DashboardAdmin() {
 											name: '', 
 											email: '', 
 											phone: '', 
-											course_id: '', 
-											roll_number: '', 
-											admission_date: '', 
-											status: 'active' 
+											course_id: '',
+											roll_number: '',
+											admission_date: '',
+											password: '',
+											status: 'active'
 										});
 										setShowAddStudent(true);
 									}}
@@ -6265,6 +6268,17 @@ export default function DashboardAdmin() {
 									value={studentForm.phone}
 									onChange={(e) => setStudentForm({ ...studentForm, phone: e.target.value })}
 									placeholder="+92 3xx xxxxxxx"
+								/>
+							</div>
+							<div>
+								<label className="block text-sm font-medium mb-1">Password</label>
+								<input
+									type="password"
+									className="w-full border p-2 rounded"
+									value={studentForm.password}
+									onChange={(e) => setStudentForm({ ...studentForm, password: e.target.value })}
+									placeholder="Enter password"
+									required
 								/>
 							</div>
 							<div>
