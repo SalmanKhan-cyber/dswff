@@ -6231,6 +6231,7 @@ export default function DashboardAdmin() {
 										grade: '',
 										section: '',
 										admission_date: '',
+										password: '',
 										status: 'active'
 									});
 								}}
