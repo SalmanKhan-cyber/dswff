@@ -85,6 +85,72 @@ export async function onRequest(context) {
     });
   }
 
+  // Students endpoint
+  if (path === 'students' && request.method === 'POST') {
+    try {
+      const body = await request.json();
+      return new Response(JSON.stringify({
+        success: true,
+        student: {
+          id: 'student-' + Date.now(),
+          ...body,
+          admission_date: new Date().toISOString().split('T')[0], // Add admission_date
+          created_at: new Date().toISOString()
+        }
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: 'Invalid student data' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+
+  if (path === 'students' && request.method === 'GET') {
+    return new Response(JSON.stringify({
+      students: [
+        { id: '1', name: 'Test Student', email: 'student@test.com', admission_date: '2024-01-15', grade: '10' },
+        { id: '2', name: 'Sample Student', email: 'sample@test.com', admission_date: '2024-02-20', grade: '11' }
+      ]
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+
+  // Users endpoint
+  if (path === 'users' && request.method === 'GET') {
+    return new Response(JSON.stringify({
+      users: [
+        { id: '1', name: 'Test User', email: 'test@example.com', role: 'patient' },
+        { id: '2', name: 'Admin User', email: 'admin@example.com', role: 'admin' }
+      ]
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+
+  // Appointments endpoint
+  if (path === 'appointments' && request.method === 'POST') {
+    try {
+      const body = await request.json();
+      return new Response(JSON.stringify({
+        success: true,
+        appointment: {
+          id: 'apt-' + Date.now(),
+          ...body,
+          status: 'scheduled'
+        }
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: 'Invalid appointment data' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+
   return new Response(JSON.stringify({
     message: 'API endpoint', path, method: request.method
   }), {
