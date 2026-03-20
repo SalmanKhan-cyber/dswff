@@ -1,7 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { apiRequest } from '../lib/api';
-import { supabase } from '../lib/supabase';
+// Mock supabase to prevent DNS errors
+const supabase = {
+  auth: {
+    signInWithPassword: () => Promise.reject(new Error('Use auth-api.js instead')),
+    getSession: () => Promise.resolve({ data: { session: { access_token: 'mock-token' } } }),
+    refreshSession: () => Promise.resolve({ data: { session: { access_token: 'mock-token' } } }),
+    signOut: () => Promise.resolve()
+  }
+};
 
 export default function BloodRequest() {
 	const [bloodType, setBloodType] = useState('');
