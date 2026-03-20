@@ -6272,7 +6272,7 @@ export default function DashboardAdmin() {
 								/>
 							</div>
 							<div>
-								<label className="block text-sm font-medium mb-1">Password</label>
+								<label className="block text-sm font-medium mb-1">Password *</label>
 								<input
 									type="password"
 									className="w-full border p-2 rounded"
